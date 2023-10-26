@@ -1,8 +1,10 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 
+const uploadBooksRouter = require('./routes/books');
+
 class Book {
-    constructor(title, description, authors, favorite, fileCover, fileName) {
+    constructor(title, description, authors, favorite, fileCover, fileName, fileBook) {
         this.id = uuidv4();
         this.title = title;
         this.description = description;
@@ -10,6 +12,7 @@ class Book {
         this.favorite = favorite;
         this.fileCover = fileCover;
         this.fileName = fileName;
+        this.fileBook = fileBook;
     }
 }
 
@@ -25,6 +28,8 @@ const PORT = process.env.PORT || 3000 ;
 const app = express();
 
 app.use(express.json());
+
+app.use('/upload', uploadBooksRouter);
 
 app.post('/api/user/login', (req, res) => {
     const { users } = store;
