@@ -1,27 +1,6 @@
 const express = require('express');
-const { v4: uuidv4 } = require('uuid');
-
+const store = require('./store/store');
 const uploadBooksRouter = require('./routes/books');
-
-class Book {
-    constructor(title, description, authors, favorite, fileCover, fileName, fileBook) {
-        this.id = uuidv4();
-        this.title = title;
-        this.description = description;
-        this.authors = authors;
-        this.favorite = favorite;
-        this.fileCover = fileCover;
-        this.fileName = fileName;
-        this.fileBook = fileBook;
-    }
-}
-
-const store = {
-    books: [],
-    users: { 
-        id: 1, mail: "test@mail.ru" 
-    }
-};
 
 const PORT = process.env.PORT || 3000 ;
 
@@ -29,22 +8,12 @@ const app = express();
 
 app.use(express.json());
 
-app.use('/upload', uploadBooksRouter);
+app.use('/api/books', uploadBooksRouter);
 
 app.post('/api/user/login', (req, res) => {
     const { users } = store;
 
     res.status(201).json(users);
-});
-
-app.post('/api/books', (req, res) => {
-    const {books} = store;
-    const {title, description, authors, favorite, fileCover, fileName} = req.body;
-    const newBook = new Book(title, description, authors, favorite, fileCover, fileName);
-
-    books.push(newBook);
-
-    res.status(201).json(newBook);
 });
 
 app.get('/api/books', (req, res) => {
@@ -61,6 +30,17 @@ app.get('/api/books/:id', (req, res) => {
         res.json(books[index]);
     } else {
         res.status(404).json('404 | Not found');
+    }
+});
+
+app.get('/api/books/:id/download', (req, res) => {
+    const { id } = req.params;
+    const book = store.books.find(book => book.id === id);
+    
+    if (book && book.fileBook) {
+        res.download(book.fileBook)
+    } else {
+        res.status(404).send('Book or file not found');
     }
 });
 
