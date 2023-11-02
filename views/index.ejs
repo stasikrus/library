@@ -1,0 +1,14 @@
+<%- include('./includes/layout-start', {title: title}) %>
+
+<main>
+    <h1><%= {title} %></h1>
+    <div>
+        <ul>
+            <% books.forEach(item => { %> 
+            <li><% item %></li>
+            <% }); %>
+        </ul>
+    </div>    
+</main>
+
+<%- include('./includes/layout-end') %>
