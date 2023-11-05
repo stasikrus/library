@@ -1,0 +1,24 @@
+<%- include('../includes/layout-start', {title: title}) %>
+<%- include('../includes/menu') %>
+
+<main>
+    <h1><%= title %></h1>
+
+    <% if (books.length) { %>
+        <div>
+            <ul>
+                <% books.forEach(item => { %> 
+                <li>
+                    <a href="/api/books/<%= item.id %>">
+                        <h3><%= item.title %></h3>
+                    </a>
+                </li>
+                <% }); %>
+            </ul>
+        </div>    
+    <% } else {  %>
+        <h3>Книг пока нет</h3>
+    <% } %>        
+</main>
+
+<%- include('../includes/layout-end') %>

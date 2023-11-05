@@ -1,0 +1,16 @@
+<%- include('../includes/layout-start', {title: title}) %>
+<%- include('../includes/menu') %>
+
+<h1><%= book.title %></h1>
+<div>
+    <h5><%= book.title %></h5>
+    <p><%= book.description %></p>
+    <caption><%= book.authors %></caption>
+</div>
+<form action="/api/books/<%= book.id %>" method="post">
+    <input type="hidden" name="_method" value="DELETE">
+    <button type="submit">Удалить</button>
+</form>
+<a href="/api/update/<%= book.id %>">Редактировать</a>
+
+<%- include('../includes/layout-end') %>
