@@ -1,4 +1,4 @@
-<form action="/api/books/<%= book.id %>" method="post" enctype="multipart/form-data" class="form-container">
+<form action=<%= route %> method=<%= method %> enctype="multipart/form-data" class="form-container">
     <div class="form-group">
         <label for="title">Название:</label>
         <input type="text" id="title" name="title" value="<%= book.title %>" required>

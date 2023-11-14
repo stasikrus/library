@@ -34,6 +34,8 @@ router.get('/books', (req, res) => {
 router.get('/create', (req, res) => {
     res.render('books/create', {
         title: 'Create book',
+        method: 'post',
+        route: '/books',
         book: {}
     });
 });
@@ -76,6 +78,8 @@ router.get('/update/:id', (req, res) => {
     if (book) {
         res.render('books/update', {
             title: `Book | Update ${book.title}`,
+            method: 'put',
+            route: `/books/${book.id}`,
             book: book
         });
     } else {
