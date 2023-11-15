@@ -6,6 +6,8 @@
     <h5><%= book.title %></h5>
     <p><%= book.description %></p>
     <caption><%= book.authors %></caption>
+
+    <p>Количество просмотров: <%= counter %></p>
 </div>
 <form action="/api/books/<%= book.id %>" method="post">
     <input type="hidden" name="_method" value="DELETE">

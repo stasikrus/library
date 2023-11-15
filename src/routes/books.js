@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fileMulter = require('../middleware/file');
 const { v4: uuidv4 } = require('uuid');
+const { incrementCounter, getCounter } = require('../utils/counter');
 
 class Book {
     constructor(title, description, authors, favorite, fileCover, fileName, fileBook) {
@@ -16,8 +17,18 @@ class Book {
     }
 }
 
+const testBook = new Book(
+    "Test Book Title",
+    "Description of Test Book",
+    "Test Author",
+    false,
+    "path/to/cover.jpg",
+    "test-book.pdf",
+    "path/to/test-book.pdf"
+);
+
 const store = {
-    books: [],
+    books: [testBook],
     users: { 
         id: 1, mail: "test@mail.ru" 
     }
@@ -55,15 +66,19 @@ router.post('/books',
         }
     });
 
-router.get('/books/:id', (req, res) => {
+router.get('/books/:id', async (req, res) => {
     const { books } = store;
     const { id } = req.params;
     const book = books.find(book => book.id === id);
 
     if (book) {
+        await incrementCounter(id);
+        const bookCounter = await getCounter(id);
+
         res.render('books/view', {
             title: `Book | ${book.title}`,
-            book: book
+            book: book,
+            counter: bookCounter
         });
     } else {
         res.redirect('/404');
