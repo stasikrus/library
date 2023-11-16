@@ -1,16 +1,22 @@
-version: '3.8'
 services:
-  library-app:
-    build: .
-    ports:
-      - "3000:3000"
-  counter-app:
-    build: ../count
-    ports:
-      - "3001:3001"
-    depends_on:
-      - redis
   redis:
     image: "redis:alpine"
     ports:
       - "6379:6379"
+    volumes:
+      - ./data:/data   
+  library-app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000 
+  counter-app:
+    image: stasikrus/counter-app
+    ports:
+      - "3001:3001"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - PORT=3001  

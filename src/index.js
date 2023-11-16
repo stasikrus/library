@@ -6,14 +6,13 @@ const PORT = process.env.PORT || 3000 ;
 
 const app = express();
 
-app.use('/api', express.static(path.join(__dirname, 'views', 'includes'), {
+app.use('/static', express.static(path.join(__dirname, 'views', 'includes'), {
   setHeaders: (res, path) => {
     if (path.endsWith('.css')) {
       res.setHeader('Content-Type', 'text/css');
     }
   }
 }));
-
 
 app.use(express.json());
 

@@ -11,10 +11,10 @@ async function incrementCounter(bookId) {
 async function getCounter(bookId) {
     try {
         const response = await axios.get(`http://counter-app:3001/counter/${bookId}`);
-        return response.data.count; // Возвращаем значение счетчика
+        return response.data.count; 
     } catch (error) {
         console.error('Ошибка при получении данных счетчика:', error);
-        return 0; // В случае ошибки возвращаем 0
+        return 0; 
     }
 }
 
