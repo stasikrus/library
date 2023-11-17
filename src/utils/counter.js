@@ -1,8 +1,10 @@
 const axios = require('axios');
 
+const COUNTER_APP_URL = process.env.COUNTER_APP_URL || 'http://localhost:3001';
+
 async function incrementCounter(bookId) {
     try {
-        await axios.post(`http://counter-app:3001/counter/${bookId}/incr`);
+        await axios.post(`${COUNTER_APP_URL}/counter/${bookId}/incr`);
     } catch (error) {
         console.error('Ошибка при увеличении счётчика:', error);
     }
@@ -10,7 +12,7 @@ async function incrementCounter(bookId) {
 
 async function getCounter(bookId) {
     try {
-        const response = await axios.get(`http://counter-app:3001/counter/${bookId}`);
+        const response = await axios.get(`${COUNTER_APP_URL}/counter/${bookId}`);
         return response.data.count; 
     } catch (error) {
         console.error('Ошибка при получении данных счетчика:', error);

@@ -10,7 +10,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - PORT=3000 
+      - PORT=3000
+      - COUNTER_APP_URL=http://counter-app:3001 
   counter-app:
     image: stasikrus/counter-app
     ports:
