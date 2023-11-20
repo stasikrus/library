@@ -3,6 +3,8 @@ const router = express.Router();
 const fileMulter = require('../middleware/file');
 const { v4: uuidv4 } = require('uuid');
 const { incrementCounter, getCounter } = require('../utils/counter');
+const Library = require('../models/library');
+const fs = require('fs');
 
 class Book {
     constructor(title, description, authors, favorite, fileCover, fileName, fileBook) {
@@ -34,61 +36,97 @@ const store = {
     }
 };
 
-router.get('/books', (req, res) => {
-    const { books } = store;
-    res.render('books/index', {
-        title: 'Books',
-        books: books
-    });
+router.get('/books', async (req, res) => {
+    try {
+        const books = await Library.find().select('-__v');
+        res.render('books/index', {
+            title: 'Books',
+            books: books
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Произошла ошибка при получении книг", error: error });
+    }
 });
 
 router.get('/create', (req, res) => {
     res.render('books/create', {
         title: 'Create book',
         method: 'post',
-        route: '/books',
+        route: '/api/books',
         book: {}
     });
 });
 
 router.post('/books',
     fileMulter.single('file-book'),
-    (req, res) => {
+    async (req, res) => {
         if (req.file) {
             const { path, filename } = req.file;
             const { title, description, authors, favorite, fileCover } = req.body;
-            const { books } = store;
-            const newBook = new Book(title, description, authors, favorite, fileCover, filename, path);
-            books.push(newBook);
-            res.status(201).redirect('/');
+
+            // Логирование пути файла
+            console.log("File path:", path);
+
+            // Проверка существования файла
+            if (fs.existsSync(path)) {
+                console.log("File exists.");
+                const fileData = fs.readFileSync(path);
+
+                const newBook = new Library({
+                    title,
+                    description,
+                    authors,
+                    favorite,
+                    fileCover,
+                    fileName: filename,
+                    fileData
+                });
+
+                try {
+                    await newBook.save();
+                    res.status(201).json(newBook);
+                } catch (error) {
+                    // Логирование ошибки при сохранении
+                    console.error("Error saving the book:", error);
+                    res.status(500).json({ message: "Произошла ошибка при сохранении книги", error: error });
+                }
+            } else {
+                console.log("File does not exist.");
+                res.status(400).send('Файл книги не найден');
+            }
         } else {
-            res.status(400).send('File was not uploaded');
+            res.status(400).send('Файл книги не был загружен');
         }
-    });
+    }
+);
 
 router.get('/books/:id', async (req, res) => {
-    const { books } = store;
     const { id } = req.params;
-    const book = books.find(book => book.id === id);
 
-    if (book) {
-        await incrementCounter(id);
-        const bookCounter = await getCounter(id);
+    try {
+        const book = await Library.findById(id).select('-__v');
+        if (book) {
+            await incrementCounter(id);
+            const bookCounter = await getCounter(id);
 
-        res.render('books/view', {
-            title: `Book | ${book.title}`,
-            book: book,
-            counter: bookCounter
-        });
-    } else {
-        res.redirect('/404');
+            res.render('books/view', {
+                title: `Book | ${book.title}`,
+                book: book,
+                counter: bookCounter
+            });
+        } else {
+            res.status(404).redirect('/404');
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Произошла ошибка при получении книги", error: error });
     }
 });
+    
 
-router.get('/update/:id', (req, res) => {
-    const { books } = store;
+router.get('/update/:id', async (req, res) => {
     const { id } = req.params;
-    const book = books.find(book => book.id === id);
+
+    const book = await Library.findById(id);
 
     if (book) {
         res.render('books/update', {
@@ -98,38 +136,40 @@ router.get('/update/:id', (req, res) => {
             book: book
         });
     } else {
-        res.redirect('/404');
+        res.status(404).redirect('/404');
     }
 });
 
-router.put('/books/:id', (req, res) => {
-    const { books } = store;
+router.put('/books/:id', async (req, res) => {
     const { id } = req.params;
-    const { title, description, authors, favorite, fileCover, fileName, fileBook } = req.body;
+    const { title, description, authors, favorite, fileCover, fileName } = req.body;
 
-    const index = books.findIndex(book => book.id === id);
+    try {
+        await Library.findByIdAndUpdate(id, {
+            title,
+            description,
+            authors,
+            favorite,
+            fileCover,
+            fileName
+        });
 
-    if (index !== -1) {
-        const updatedBook = new Book(title, description, authors, favorite, fileCover, fileName, fileBook);
-        books[index] = updatedBook;
-        res.json(updatedBook);
-    } else {
-        res.status(404).json('Book not found');
+        res.redirect('/');
+    } catch (error) {
+        res.status(500).json({ message: "Произошла ошибка при обновлении книги", error: error });
     }
 });
 
-router.delete('/delete/books/:id', (req, res) => {
-    const { books } = store;
+router.delete('/delete/books/:id', async (req, res) => {
     const { id } = req.params;
 
-    const index = books.findIndex(book => book.id === id);
-
-    if (index !== -1) {
-        books.splice(index, 1);
-        res.json('ok');
-    } else {
-        res.status(404).json('Book not found');
+    try {
+        await Library.deleteOne({_id: id});
+        res.status(200).json('ok')
+    } catch (error) {
+        res.status(500).json({ message: "Произошла ошибка при удалении книги", error: error });
     }
 });
+
 
 module.exports = router;

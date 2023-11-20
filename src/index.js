@@ -1,8 +1,10 @@
 const express = require('express');
 const getBooksRouter = require('./routes/books');
 const path = require('path');
+const mongoose = require('mongoose');
 
 const PORT = process.env.PORT || 3000 ;
+const UrlDB = process.env.UrlDB || 'mongodb://root:example@mongo:27017/library';
 
 const app = express();
 
@@ -27,6 +29,17 @@ app.post('/api/user/login', (req, res) => {
     res.status(201).json(users);
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+async function start(PORT, UrlDB) {
+  try {
+    await mongoose.connect(UrlDB, {
+      dbName: "books"
+    });
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+start(PORT, UrlDB);
