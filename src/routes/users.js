@@ -4,26 +4,31 @@ const User = require('../models/users');
 const router = express.Router();
 
 router.get('/login', (req, res) => {
-    res.render('users/login');
+    res.render('users/login', {
+        title: 'Авторизация'
+    });
 });
 
 router.get('/me', (req, res) => {
     if (!req.isAuthenticated()) {
-        return res.redirect('/login');
+        return res.redirect('/api/user/login');
     }
 
     res.render('users/profile', {
+        title: 'Профиль',
         username: req.user.username
     })
 });
 
 router.post('/login', passport.authenticate('local', {
-    successRedirect: '/me',
-    failureRedirect: '/login',
+    successRedirect: '/api/user/me',
+    failureRedirect: '/api/user/login',
 }));
 
 router.get('/signup', (req, res) => {
-    res.render('users/signup');
+    res.render('users/signup', {
+        title: 'Регистрация'
+    });
 })
 
 router.post('/signup', async (req, res) => {
@@ -32,22 +37,23 @@ router.post('/signup', async (req, res) => {
 
         const existingUser = await User.findOne({ username });
         if (existingUser) {
-            return res.redirect('/login');
+            return res.redirect('/api/user/login');
         }
 
         const user = new User({ username, password, email });
         await user.save();
 
-        res.redirect('/me');
+        res.redirect('/api/user/me');
     } catch (error) {
-        res.redirect('/signup');
+        console.error("Ошибка регистрации:", error);
+        res.redirect('/api/user/signup');
     }
 });
 
-router.get('/logout', (req, res) => {
+router.get('/logout', (req, res, next) => {
     req.logout(function(err) {
         if (err) { return next(err); }
-        res.redirect('/login');
+        res.redirect('/api/user/login');
     });
 });
 

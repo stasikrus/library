@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('./models/users');
+const session = require('express-session');
 
 const PORT = process.env.PORT || 3000 ;
 const UrlDB = process.env.UrlDB || 'mongodb://root:example@mongo:27017/library';
@@ -37,11 +38,18 @@ passport.serializeUser((user, done) => {
   done(null, user._id);
 });
 
-passport.deserializeUser((id, done) => {
-  User.findById(id, (err, user) => {
-    done(err, user);
-  });
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
 });
+
+app.use(session({secret: 'secret'}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/static', express.static(path.join(__dirname, 'views', 'includes'), {
   setHeaders: (res, path) => {
@@ -52,6 +60,7 @@ app.use('/static', express.static(path.join(__dirname, 'views', 'includes'), {
 }));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));

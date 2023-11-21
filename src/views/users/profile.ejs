@@ -3,13 +3,11 @@
 
 <h1>Профиль</h1>
 <div>
-    <h5>"Привет <%= username %>!"</h5>
+    <h5>Привет <%= username %>!</h5>
     <p>Личный кабинет находиться в разработке.</p>
+
+    <a href="/api/user/logout" class="btn btn-danger">Выйти</a>
 </div>
-<form action="/api/books/<%= book.id %>" method="post">
-    <input type="hidden" name="_method" value="DELETE">
-    <button type="submit">Удалить</button>
-</form>
-<a href="/api/update/<%= book.id %>">Редактировать</a>
+
 
 <%- include('../includes/layout-end') %>
