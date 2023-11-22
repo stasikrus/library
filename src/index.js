@@ -7,11 +7,16 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('./models/users');
 const session = require('express-session');
+const socketIo = require('socket.io');
+const http = require('http');
+const setupSocketHandlers = require('./socket/setupSocketHandlers ');
 
 const PORT = process.env.PORT || 3000 ;
 const UrlDB = process.env.UrlDB || 'mongodb://root:example@mongo:27017/library';
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 
 passport.use(new LocalStrategy(
   async (username, password, done) => {
@@ -68,12 +73,14 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/api', getBooksRouter);
 app.use('/api/user', userRoutes);
 
+setupSocketHandlers(io);
+
 async function start(PORT, UrlDB) {
   try {
     await mongoose.connect(UrlDB, {
       dbName: "books"
     });
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {

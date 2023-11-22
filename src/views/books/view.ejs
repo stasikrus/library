@@ -15,4 +15,12 @@
 </form>
 <a href="/api/update/<%= book.id %>">Редактировать</a>
 
+<div id="comments"></div>
+  
+<form id="comment-form">
+  <textarea id="comment-text" placeholder="Добавьте комментарий"></textarea>
+  <button type="submit">Отправить</button>
+</form>
+  
+
 <%- include('../includes/layout-end') %>
