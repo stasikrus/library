@@ -52,17 +52,16 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-app.use(session({secret: 'secret'}));
+app.use(session({
+  secret: 'secret',
+  resave: false,
+  saveUninitialized: false
+}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/static', express.static(path.join(__dirname, 'views', 'includes'), {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
-  }
-}));
+app.use('/static', express.static(path.join(__dirname, 'static')));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
