@@ -61,7 +61,8 @@ router.get('/books/:id', async (req, res) => {
             res.render('books/view', {
                 title: `Book | ${book.title}`,
                 book: book,
-                counter: bookCounter
+                counter: bookCounter,
+                isAuthenticated: req.isAuthenticated()
             });
         } else {
             res.status(404).redirect('/404');

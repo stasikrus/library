@@ -13,3 +13,7 @@ socket.on('new_comment', function(data) {
   newComment.textContent = data.comment;
   commentsDiv.appendChild(newComment);
 });
+
+socket.on('auth_error', function(message) {
+  alert(message);
+});

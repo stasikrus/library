@@ -16,11 +16,15 @@
 <a href="/api/update/<%= book.id %>">Редактировать</a>
 
 <div id="comments"></div>
-  
-<form id="comment-form">
-  <textarea id="comment-text" placeholder="Добавьте комментарий"></textarea>
-  <button type="submit">Отправить</button>
-</form>
+
+<% if (user) { %>
+  <form id="comment-form">
+    <textarea id="comment-text" placeholder="Добавьте комментарий"></textarea>
+    <button type="submit">Отправить</button>
+  </form>
+<% } else { %>
+  <p><a href="/api/user/login">Авторизуйтесь</a>, чтобы оставлять комментарии.</p> 
+<% } %>  
 
 <script src="/socket.io/socket.io.js"></script>
 <script type="module" src="/static/js/socketClient.js"></script>
